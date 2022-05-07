@@ -1,39 +1,41 @@
 const inputTask = document.getElementById("input-task");
 const addTaskButton = document.getElementById("add-task-button");
-let taskList = document.getElementById("task-list");
-const taskStatus = document.querySelectorAll(".task");
-const deleteButton = document.querySelectorAll(".delete-btn");
-const taskNumber = document.getElementsByTagName("li");
+const taskLists = document.getElementById("task-list");
 
-todoMain();
-function todoMain() {
-  addTaskButton.addEventListener("click", (e) => {
-    if (inputTask.value != "") {
-      e.preventDefault();
+let storedTasks = localStorage.getItem("tasks");
+taskLists.innerHTML = storedTasks;
 
-      let taskID = "task-" + Math.random();
-      const newTask = `<li>
-        
-        <label for="${taskID}">
-        <input type="checkbox" class="task-status" onclick = "strikeAction(this)" id="${taskID}"/><span class="task"
-        >${inputTask.value}</span>
-        </label>
-        
-        <div>
-        <button type="reset" class="delete-btn" onclick="deleteAction(this)">+</button>
-        </div>
-        </li>`;
-      taskList.innerHTML += newTask;
-      localStorage.setItem("tasks", taskList.innerHTML);
+state();
+function state() {
+  const taskStatus = document.querySelectorAll(".task");
+  for (let state of taskStatus) {
+    if (state.classList.contains("done")) {
+      state.previousSibling.checked = true;
+    } else {
+      state.previousSibling.checked = false;
     }
-    inputTask.value = "";
-  });
-}
-function checked(element) {
-  if (element.nextSibling.classList.contains("done")) {
-    element.prop("checked");
   }
 }
+
+addTaskButton.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (inputTask.value != "") {
+    let newTask = `<li>
+    <label>
+      <input type="checkbox" class="task-status" onclick = "strikeAction(this)" onchange="state()"/><span class="task"
+      >${inputTask.value}</span>
+      </label>
+      <div>
+      <button type="reset" class="delete-btn" onclick="deleteAction(this)">+</button>
+      </div>
+      </li>`;
+    inputTask.value = "";
+    taskLists.innerHTML += newTask;
+    localStorage.setItem("tasks", taskLists.innerHTML);
+  }
+});
+
+addTaskButton.addEventListener("click", state);
 
 function strikeAction(element) {
   if (element.checked == true) {
@@ -41,11 +43,12 @@ function strikeAction(element) {
   } else if (element.checked != true) {
     element.nextSibling.classList.remove("done");
   }
-  localStorage.setItem("tasks", taskList.innerHTML);
+  localStorage.setItem("tasks", taskLists.innerHTML);
 }
 
 function deleteAction(element) {
   element.parentElement.parentElement.remove();
-  localStorage.setItem("tasks", taskList.innerHTML);
+  localStorage.setItem("tasks", taskLists.innerHTML);
 }
-taskList.innerHTML = localStorage.getItem("tasks");
+
+// localStorage.clear();
